@@ -57,8 +57,4 @@ public interface VetRepository extends JpaRepository<Vet, Integer>, JpaSpecifica
 	@Transactional(readOnly = true)
 	@Cacheable("vets")
 	Page<Vet> findAll(Pageable pageable) throws DataAccessException;
-
-	List<Vet> findBySpecialtiesIn(Collection<Specialty> specialties);
-
-
 }
