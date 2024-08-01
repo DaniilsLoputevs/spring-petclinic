@@ -27,6 +27,8 @@ public class SqlStatementLogger implements Service {
 	private static final Logger LOG = CoreLogging.logger( "org.hibernate.SQL" );
 	private static final Logger LOG_SLOW = CoreLogging.logger( "org.hibernate.SQL_SLOW" );
 
+	public static final String SHOW_SQL_ON_DEMAND = "show-sql-on-demand";
+
 	private final boolean logToStdout;
 	private final boolean format;
 	private final boolean highlight;
@@ -114,7 +116,8 @@ public class SqlStatementLogger implements Service {
 	 */
 	@AllowSysOut
 	public void logStatement(String statement, Formatter formatter) {
-		if (!logToStdout && !LOG.isDebugEnabled()) {
+		boolean localShowSql = MDC.get(SHOW_SQL_ON_DEMAND) != null;
+		if (!logToStdout && !LOG.isDebugEnabled() && !localShowSql) {
 			return;
 		}
 
