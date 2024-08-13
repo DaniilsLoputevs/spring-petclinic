@@ -2,7 +2,7 @@ POST http://localhost:9082/realms/petclinic-backoffice/protocol/openid-connect/a
 [FormParams]
 response_type: code
 redirect_uri: http://localhost:8080/login/oauth2/code/keycloak
-client_id: portal
+client_id: adminui
 
 HTTP/1.1 200
 [Captures]
@@ -22,14 +22,14 @@ POST http://localhost:9082/realms/petclinic-backoffice/protocol/openid-connect/t
 [FormParams]
 grant_type: authorization_code
 code: {{authorization_code}}
-client_id: portal
+client_id: adminui
 redirect_uri: http://localhost:8080/login/oauth2/code/keycloak
 
 HTTP/1.1 200
 [Captures]
 access_token: jsonpath "$.access_token"
 
-GET http://localhost:8080/rest/vets
+GET http://localhost:8080/admin/vets
 Content-type: application/json
 Authorization: Bearer {{access_token}}
 
