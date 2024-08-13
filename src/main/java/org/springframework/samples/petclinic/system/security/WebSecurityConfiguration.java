@@ -61,18 +61,17 @@ public class WebSecurityConfiguration {
 		return (authorities) -> {
 			Set<GrantedAuthority> mappedAuthorities = new HashSet<>();
 			authorities.forEach(authority -> {
-				if (authority instanceof OidcUserAuthority){
-					OidcUserAuthority oidcUserAuthority = (OidcUserAuthority) authority;
-					// noinspection unchecked
-					Optional.ofNullable(oidcUserAuthority.getAttributes().get("resource_access"))
-						.map(ra -> ((Map<String, ?>) ra).get("sb-legacy"))
-						.map(sbLegacy -> ((Map<String, ?>) sbLegacy).get("roles"))
-						.ifPresent(roles -> ((List<String>) roles).stream()
-							.map(r -> new SimpleGrantedAuthority("ROLE_" + r))
-							.forEach(mappedAuthorities::add));
-				} else {
-					mappedAuthorities.add(authority);
+				if (!(authority instanceof OidcUserAuthority oidcUserAuthority)) {
+					return;
 				}
+
+				// noinspection unchecked
+				Optional.ofNullable(oidcUserAuthority.getAttributes().get("resource_access"))
+					.map(ra -> ((Map<String, ?>) ra).get("sb-legacy"))
+					.map(sbLegacy -> ((Map<String, ?>) sbLegacy).get("roles"))
+					.ifPresent(roles -> ((List<String>) roles).stream()
+						.map(r -> new SimpleGrantedAuthority("ROLE_" + r))
+						.forEach(mappedAuthorities::add));
 			});
 			return mappedAuthorities;
 		};
