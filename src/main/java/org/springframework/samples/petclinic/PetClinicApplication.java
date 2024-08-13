@@ -18,10 +18,17 @@ package org.springframework.samples.petclinic;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ImportRuntimeHints;
+import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
+import org.springframework.samples.petclinic.system.user.Role;
+import org.springframework.samples.petclinic.system.user.RoleRepository;
+import org.springframework.samples.petclinic.system.user.User;
+import org.springframework.samples.petclinic.system.user.UserRepository;
 import org.springframework.web.servlet.i18n.SessionLocaleResolver;
 
+import java.util.HashSet;
 import java.util.Locale;
 
 /**
@@ -37,5 +44,4 @@ public class PetClinicApplication {
 	public static void main(String[] args) {
 		SpringApplication.run(PetClinicApplication.class, args);
 	}
-
 }

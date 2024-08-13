@@ -6,6 +6,7 @@ plugins {
   id 'org.cyclonedx.bom' version '1.8.2'
   id 'io.spring.javaformat' version '0.0.41'
   id "io.spring.nohttp" version "0.0.11"
+  id "org.flywaydb.flyway" version "10.17.0"
 }
 
 apply plugin: 'java'
@@ -46,11 +47,18 @@ dependencies {
   developmentOnly 'org.springframework.boot:spring-boot-devtools'
   testImplementation 'org.springframework.boot:spring-boot-starter-test'
   testImplementation 'org.springframework.boot:spring-boot-testcontainers'
-  testImplementation 'org.springframework.boot:spring-boot-docker-compose'
+  //testImplementation 'org.springframework.boot:spring-boot-docker-compose'
   testImplementation 'org.testcontainers:junit-jupiter'
   testImplementation 'org.testcontainers:mysql'
   checkstyle 'io.spring.javaformat:spring-javaformat-checkstyle:0.0.41'
   checkstyle 'com.puppycrawl.tools:checkstyle:10.16.0'
+    compileOnly 'org.mapstruct:mapstruct:1.5.3.Final'
+    annotationProcessor 'org.mapstruct:mapstruct-processor:1.5.3.Final'
+  implementation 'org.springframework.boot:spring-boot-starter-security'
+  implementation 'org.flywaydb:flyway-mysql'
+  implementation 'org.flywaydb:flyway-database-postgresql'
+  implementation 'org.flywaydb:flyway-core'
+  implementation 'org.springframework.boot:spring-boot-starter-oauth2-resource-server'
 }
 
 tasks.named('test') {
@@ -65,6 +73,13 @@ checkstyle {
 checkstyleNohttp {
   configDirectory = project.file('src/checkstyle')
   configFile = file('src/checkstyle/nohttp-checkstyle.xml')
+}
+
+flyway {
+  driver = 'org.postgresql.Driver'
+  url = 'jdbc:postgresql://localhost:5432/petclinic'
+  user = 'petclinic'
+  password = 'petclinic'
 }
 
 tasks.named("formatMain").configure { dependsOn("checkstyleMain") }
