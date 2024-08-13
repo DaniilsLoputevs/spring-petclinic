@@ -1,8 +1,11 @@
 package org.springframework.samples.petclinic.system.security;
 
+import net.minidev.json.JSONArray;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
+import org.springframework.samples.petclinic.system.user.User;
+import org.springframework.samples.petclinic.system.user.UserRepository;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -10,19 +13,30 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 import org.springframework.security.config.annotation.web.configurers.AnonymousConfigurer;
 import org.springframework.security.config.annotation.web.configurers.CsrfConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.authority.mapping.GrantedAuthoritiesMapper;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.oauth2.client.registration.ClientRegistration;
+import org.springframework.security.oauth2.core.oidc.user.OidcUserAuthority;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Configuration
 @EnableWebSecurity
 public class WebSecurityConfiguration {
 
-	private final JpaUserService jpaUserService;
+	private final UserRepository userRepository;
 
-	public WebSecurityConfiguration(JpaUserService jpaUserService) {
-		this.jpaUserService = jpaUserService;
+	public WebSecurityConfiguration(UserRepository userRepository) {
+		this.userRepository = userRepository;
 	}
 
 	@Bean
@@ -30,16 +44,68 @@ public class WebSecurityConfiguration {
 	public SecurityFilterChain legacy(HttpSecurity http) throws Exception {
 		return http.securityMatcher("/**")
 			.authorizeHttpRequests(authorizeHttpRequests -> authorizeHttpRequests
-				.requestMatchers("/vets.html").hasRole("MANAGER")
+//				.requestMatchers("/vets.html").hasRole("MANAGER")
 				.requestMatchers("/vets").permitAll()
-				.anyRequest().hasRole("LEGACY")) // ??
-			.userDetailsService(jpaUserService)
+				.anyRequest().hasRole("legacy")) // ??
+			.userDetailsService(formLoginUserService())
 			.headers(Customizer.withDefaults())
 			.sessionManagement(Customizer.withDefaults())
 			.formLogin(Customizer.withDefaults())
+			.oauth2Login(o2l -> o2l.userInfoEndpoint(uie -> uie.userAuthoritiesMapper(userAuthoritiesMapper())))
 			.anonymous(AnonymousConfigurer::disable)
 			.csrf(AbstractHttpConfigurer::disable)
 			.build();
+	}
+
+	public GrantedAuthoritiesMapper userAuthoritiesMapper() {
+		return (authorities) -> {
+			Set<GrantedAuthority> mappedAuthorities = new HashSet<>();
+			authorities.forEach(authority -> {
+				if (authority instanceof OidcUserAuthority){
+					OidcUserAuthority oidcUserAuthority = (OidcUserAuthority) authority;
+					// noinspection unchecked,rawtypes
+					Optional.ofNullable(oidcUserAuthority.getAttributes().get("resource_access"))
+						.map(ra -> ((Map) ra).get("sb-legacy"))
+						.map(sbLegacy -> ((Map) sbLegacy).get("roles"))
+						.ifPresent(roles -> ((List<String>) roles).stream()
+							.map(r -> new SimpleGrantedAuthority("ROLE_" + r))
+							.forEach(mappedAuthorities::add));
+				} else {
+					mappedAuthorities.add(authority);
+				}
+			});
+			return mappedAuthorities;
+		};
+	}
+
+	@Bean
+	public UserDetailsService formLoginUserService() {
+		return new UserDetailsService() {
+
+				@Override
+				@Transactional
+				public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+					User user = userRepository.findByUsernameIgnoreCase(username)
+						.orElseThrow(() -> new UsernameNotFoundException(String.format("User %s not found", username)));
+
+					return createUserDetails(user);
+				}
+
+				private UserDetails createUserDetails(User user) {
+					List<GrantedAuthority> grantedAuthorities = user
+						.getAuthorities()
+						.stream()
+						.map(authority -> new SimpleGrantedAuthority("ROLE_" + authority.getAuthority()))
+						.collect(Collectors.toList());
+
+					return org.springframework.security.core.userdetails.User.withUsername(user.getUsername())
+						.password(user.getPassword())
+						.authorities(grantedAuthorities)
+						.disabled(!Boolean.TRUE.equals(user.getEnabled()))
+						.build();
+				}
+		};
+
 	}
 
 	@Bean

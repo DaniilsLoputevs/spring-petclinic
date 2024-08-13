@@ -17,14 +17,19 @@ package org.springframework.samples.petclinic.vet;
 
 import java.util.List;
 
+import org.apache.catalina.security.SecurityUtil;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+
+import static org.springframework.security.core.authority.AuthorityUtils.createAuthorityList;
 
 /**
  * @author Juergen Hoeller
@@ -42,21 +47,27 @@ class VetController {
 	}
 
 	@GetMapping("/vets.html")
-	public String showVetList(@RequestParam(defaultValue = "1") int page, Model model) {
+	public String showVetList(@RequestParam(defaultValue = "1") int page, Authentication authentication, Model model) {
 		// Here we are returning an object of type 'Vets' rather than a collection of Vet
 		// objects so it is simpler for Object-Xml mapping
 		Vets vets = new Vets();
 		Page<Vet> paginated = findPaginated(page);
 		vets.getVetList().addAll(paginated.toList());
-		return addPaginationModel(page, paginated, model);
+
+		return addPaginationModel(page, paginated, authentication, model);
 	}
 
-	private String addPaginationModel(int page, Page<Vet> paginated, Model model) {
+	private String addPaginationModel(int page, Page<Vet> paginated, Authentication authentication, Model model) {
 		List<Vet> listVets = paginated.getContent();
 		model.addAttribute("currentPage", page);
 		model.addAttribute("totalPages", paginated.getTotalPages());
 		model.addAttribute("totalItems", paginated.getTotalElements());
 		model.addAttribute("listVets", listVets);
+
+		//noinspection SuspiciousMethodCalls
+		if (authentication.getAuthorities().containsAll(createAuthorityList("ROLE_ceo"))) {
+			return "vets/vetListCeo";
+		}
 		return "vets/vetList";
 	}
 

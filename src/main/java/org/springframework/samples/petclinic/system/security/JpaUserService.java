@@ -13,7 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.stream.Collectors;
 
-@Component
+//@Component
 public class JpaUserService implements UserDetailsService {
 
 	private final UserRepository repository;
