@@ -63,10 +63,10 @@ public class WebSecurityConfiguration {
 			authorities.forEach(authority -> {
 				if (authority instanceof OidcUserAuthority){
 					OidcUserAuthority oidcUserAuthority = (OidcUserAuthority) authority;
-					// noinspection unchecked,rawtypes
+					// noinspection unchecked
 					Optional.ofNullable(oidcUserAuthority.getAttributes().get("resource_access"))
-						.map(ra -> ((Map) ra).get("sb-legacy"))
-						.map(sbLegacy -> ((Map) sbLegacy).get("roles"))
+						.map(ra -> ((Map<String, ?>) ra).get("sb-legacy"))
+						.map(sbLegacy -> ((Map<String, ?>) sbLegacy).get("roles"))
 						.ifPresent(roles -> ((List<String>) roles).stream()
 							.map(r -> new SimpleGrantedAuthority("ROLE_" + r))
 							.forEach(mappedAuthorities::add));
