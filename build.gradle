@@ -54,12 +54,9 @@ dependencies {
   checkstyle 'com.puppycrawl.tools:checkstyle:10.16.0'
     compileOnly 'org.mapstruct:mapstruct:1.5.3.Final'
     annotationProcessor 'org.mapstruct:mapstruct-processor:1.5.3.Final'
-  implementation 'org.springframework.boot:spring-boot-starter-security'
   implementation 'org.flywaydb:flyway-mysql'
   implementation 'org.flywaydb:flyway-database-postgresql'
   implementation 'org.flywaydb:flyway-core'
-  implementation 'org.springframework.boot:spring-boot-starter-oauth2-resource-server'
-    implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
 }
 
 tasks.named('test') {
