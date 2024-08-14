@@ -1,6 +1,5 @@
 package org.springframework.samples.petclinic.system.security;
 
-import net.minidev.json.JSONArray;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
@@ -19,7 +18,6 @@ import org.springframework.security.core.authority.mapping.GrantedAuthoritiesMap
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.core.oidc.user.OidcUserAuthority;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
@@ -109,7 +107,7 @@ public class WebSecurityConfiguration {
 
 	@Bean
 	@Order(10)
-	public SecurityFilterChain microservice(HttpSecurity http) throws Exception {
+	public SecurityFilterChain integration(HttpSecurity http) throws Exception {
 		return http.securityMatcher("/rest/**")
 			.authorizeHttpRequests(authorizeHttpRequests -> authorizeHttpRequests
 				.anyRequest().authenticated())
