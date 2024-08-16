@@ -17,6 +17,7 @@ package org.springframework.samples.petclinic.owner;
 
 import java.util.Map;
 
+import org.springframework.samples.petclinic.vet.VetRepository;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.WebDataBinder;
@@ -41,8 +42,12 @@ class VisitController {
 
 	private final OwnerRepository owners;
 
-	public VisitController(OwnerRepository owners) {
+	private final VetRepository vetRepository;
+
+	public VisitController(OwnerRepository owners,
+						   VetRepository vetRepository) {
 		this.owners = owners;
+		this.vetRepository = vetRepository;
 	}
 
 	@InitBinder
@@ -60,7 +65,8 @@ class VisitController {
 	@ModelAttribute("visit")
 	public Visit loadPetWithVisit(@PathVariable("ownerId") int ownerId, @PathVariable("petId") int petId,
 			Map<String, Object> model) {
-		Owner owner = this.owners.findById(ownerId);
+
+		Owner owner = this.owners.findWithPetsById(ownerId);
 
 		Pet pet = owner.getPet(petId);
 		model.put("pet", pet);
@@ -86,6 +92,8 @@ class VisitController {
 		if (result.hasErrors()) {
 			return "pets/createOrUpdateVisitForm";
 		}
+
+		visit.setVet(vetRepository.getReferenceById(2));
 
 		owner.addVisit(petId, visit);
 		this.owners.save(owner);

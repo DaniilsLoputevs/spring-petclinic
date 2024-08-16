@@ -52,10 +52,22 @@ public class Pet extends NamedEntity {
 	@JoinColumn(name = "type_id")
 	private PetType type;
 
+	@Column(name = "owner_id")
+	private Integer ownerId;
+
 	@OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
 	@JoinColumn(name = "pet_id")
 	@OrderBy("visit_date ASC")
 	private Set<Visit> visits = new LinkedHashSet<>();
+
+	public Integer getOwnerId() {
+		return ownerId;
+	}
+
+	public void setOwnerId(Integer ownerId) {
+		this.ownerId = ownerId;
+	}
+
 
 	public void setBirthDate(LocalDate birthDate) {
 		this.birthDate = birthDate;
