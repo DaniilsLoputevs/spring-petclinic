@@ -1,0 +1,7 @@
+postgresql:
+  enabled: true
+  fullnameOverride: postgresql
+  auth:
+    username: petclinic
+    password: petclinic
+    database: petclinic

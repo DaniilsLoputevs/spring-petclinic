@@ -1,0 +1,9 @@
+kafka:
+  enabled: true
+  image:
+    tag: 3.8.0
+  fullnameOverride: kafka
+  kraft:
+    enabled: true
+  zookeeper:
+    enabled: false

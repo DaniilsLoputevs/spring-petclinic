@@ -83,7 +83,7 @@ public class OwnerOPortalRestController {
 	@GetMapping("/owners/{ownerId}/pets/{petId}")
 	public Slice<VisitOPortalDto> findVisitsByOwnerAndPetId(@PathVariable String ownerId,
 															@PathVariable String petId, Pageable pageable) {
-		Slice<Visit> visits = visitRepository.findByPetId(petId, pageable);
+		Slice<Visit> visits = visitRepository.findByPetId(Integer.valueOf(petId), pageable);
 		return visits.map(visitMapper::toDto);
 	}
 
@@ -97,7 +97,7 @@ public class OwnerOPortalRestController {
 //	@PostMapping("/owners/{ownerId}/pets/{petId}/visits") ???
 	@PostMapping("/visits")
 	public VisitOPortalDto create(@RequestBody @Valid VisitCreateDto visitCreateDto) {
-		visitService.createVisit()
+//		visitService.createVisit()
 		Visit visit = visitMapper.toEntity(visitCreateDto);
 		Visit resultVisit = visitRepository.save(visit);
 		return visitMapper.toDto(resultVisit);

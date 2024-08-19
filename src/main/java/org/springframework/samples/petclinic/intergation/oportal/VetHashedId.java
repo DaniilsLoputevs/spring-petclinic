@@ -25,7 +25,7 @@ public class VetHashedId implements HandlerMethodArgumentResolver {
 			.alphabet("vjW3Co7l2RePyY8DwaU04Tzt9fHQrqSVKdpimLGIJOgb5ZEFxnXM1kBN6cuhsA")
 			.build();
 
-		sqids.decode(webRequest.getContextPath().)
+		sqids.decode(webRequest.getContextPath());
 		return null;
 	}
 
