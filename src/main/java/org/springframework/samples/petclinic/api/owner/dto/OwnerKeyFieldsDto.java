@@ -1,4 +1,4 @@
-package org.springframework.samples.petclinic.api.owner;
+package org.springframework.samples.petclinic.api.owner.dto;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;

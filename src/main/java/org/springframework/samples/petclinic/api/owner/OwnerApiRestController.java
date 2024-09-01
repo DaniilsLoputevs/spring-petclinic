@@ -3,6 +3,7 @@ package org.springframework.samples.petclinic.api.owner;
 import org.springframework.data.domain.Pageable;
 import org.springframework.samples.petclinic.api.idencoder.IdEncodedApiRepository;
 import org.springframework.samples.petclinic.api.owner.dto.OwnerInfoDto;
+import org.springframework.samples.petclinic.api.owner.dto.OwnerKeyFieldsDto;
 import org.springframework.samples.petclinic.api.owner.dto.PetInfoDto;
 import org.springframework.samples.petclinic.api.owner.mapper.OwnerApiMapper;
 import org.springframework.samples.petclinic.api.owner.mapper.PetApiMapper;

@@ -3,7 +3,7 @@ package org.springframework.samples.petclinic.api.owner.mapper;
 import org.mapstruct.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.samples.petclinic.api.idencoder.IdEncodedApiRepository;
-import org.springframework.samples.petclinic.api.owner.OwnerKeyFieldsDto;
+import org.springframework.samples.petclinic.api.owner.dto.OwnerKeyFieldsDto;
 import org.springframework.samples.petclinic.api.owner.dto.OwnerInfoDto;
 import org.springframework.samples.petclinic.owner.Owner;
 
