@@ -17,6 +17,8 @@ package org.springframework.samples.petclinic.owner;
 
 import java.util.Map;
 
+import org.springframework.samples.petclinic.vet.Vet;
+import org.springframework.samples.petclinic.vet.VetScheduleService;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.WebDataBinder;
@@ -41,8 +43,16 @@ class VisitController {
 
 	private final OwnerRepository owners;
 
-	public VisitController(OwnerRepository owners) {
+	private final VetScheduleService vetScheduleService;
+
+	private final PetRepository petRepository;
+
+	public VisitController(OwnerRepository owners,
+						   VetScheduleService vetScheduleService,
+						   PetRepository petRepository) {
 		this.owners = owners;
+		this.vetScheduleService = vetScheduleService;
+		this.petRepository = petRepository;
 	}
 
 	@InitBinder
@@ -87,6 +97,8 @@ class VisitController {
 			return "pets/createOrUpdateVisitForm";
 		}
 
+		Vet appropriateVet = vetScheduleService.findAppropriateVet(owner, petRepository.getReferenceById(petId), visit);
+		visit.setVet(appropriateVet);
 		owner.addVisit(petId, visit);
 		this.owners.save(owner);
 		redirectAttributes.addFlashAttribute("message", "Your visit has been booked");

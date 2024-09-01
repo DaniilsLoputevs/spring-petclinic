@@ -19,7 +19,9 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.dao.DataAccessException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -43,7 +45,9 @@ public interface VetRepository extends JpaRepository<Vet, Integer> {
 	 * Retrieve all <code>Vet</code>s from the data store.
 	 * @return a <code>Collection</code> of <code>Vet</code>s
 	 */
+
 	@Transactional(readOnly = true)
+	@Query("select v from Vet v left join fetch v.specialties")
 	@Cacheable("vets")
 	List<Vet> findAll() throws DataAccessException;
 
@@ -57,4 +61,5 @@ public interface VetRepository extends JpaRepository<Vet, Integer> {
 	@Cacheable("vets")
 	Page<Vet> findAll(Pageable pageable) throws DataAccessException;
 
+	List<Vet> findAllBySpecialties_IdIn(Collection<Integer> ids);
 }
