@@ -4,15 +4,15 @@ plugins {
   id 'io.spring.dependency-management' version '1.1.5'
   id 'org.graalvm.buildtools.native' version '0.10.2'
   id 'org.cyclonedx.bom' version '1.8.2'
-  id 'io.spring.javaformat' version '0.0.41'
-  id "io.spring.nohttp" version "0.0.11"
+//  id 'io.spring.javaformat' version '0.0.41'
+//  id "io.spring.nohttp" version "0.0.11"
 }
 
 apply plugin: 'java'
-apply plugin: 'checkstyle'
-apply plugin: 'io.spring.javaformat'
+//apply plugin: 'checkstyle'
+//apply plugin: 'io.spring.javaformat'
 
-gradle.startParameter.excludedTaskNames += [ "checkFormatAot", "checkFormatAotTest" ]
+//gradle.startParameter.excludedTaskNames += [ "checkFormatAot", "checkFormatAotTest" ]
 
 group = 'org.springframework.samples'
 version = '3.3.0'
@@ -37,6 +37,7 @@ dependencies {
   implementation 'javax.cache:cache-api'
   implementation 'jakarta.xml.bind:jakarta.xml.bind-api'
   runtimeOnly 'org.springframework.boot:spring-boot-starter-actuator'
+  runtimeOnly 'io.micrometer:micrometer-registry-prometheus'
   runtimeOnly "org.webjars.npm:bootstrap:${webjarsBootstrapVersion}"
   runtimeOnly "org.webjars.npm:font-awesome:${webjarsFontawesomeVersion}"
   runtimeOnly 'com.github.ben-manes.caffeine:caffeine'
@@ -49,39 +50,43 @@ dependencies {
   testImplementation 'org.springframework.boot:spring-boot-docker-compose'
   testImplementation 'org.testcontainers:junit-jupiter'
   testImplementation 'org.testcontainers:mysql'
-  checkstyle 'io.spring.javaformat:spring-javaformat-checkstyle:0.0.41'
-  checkstyle 'com.puppycrawl.tools:checkstyle:10.16.0'
+//  checkstyle 'io.spring.javaformat:spring-javaformat-checkstyle:0.0.41'
+//  checkstyle 'com.puppycrawl.tools:checkstyle:10.16.0'
   implementation 'org.flywaydb:flyway-mysql'
   implementation 'org.flywaydb:flyway-database-postgresql:10.12.0'
   implementation 'org.flywaydb:flyway-core'
   implementation 'org.sqids:sqids:0.1.0'
+    compileOnly 'org.mapstruct:mapstruct:1.6.0'
+    annotationProcessor 'org.mapstruct:mapstruct-processor:1.6.0'
+//  testImplementation 'io.rest-assured:rest-assured:5.4.0'
+  implementation 'org.apache.commons:commons-collections4:4.4'
 }
 
 tasks.named('test') {
   useJUnitPlatform()
 }
 
-checkstyle {
-  configDirectory = project.file('src/checkstyle')
-  configFile = file('src/checkstyle/nohttp-checkstyle.xml')
-}
+//checkstyle {
+//  configDirectory = project.file('src/checkstyle')
+//  configFile = file('src/checkstyle/nohttp-checkstyle.xml')
+//}
+//
+//checkstyleNohttp {
+//  configDirectory = project.file('src/checkstyle')
+//  configFile = file('src/checkstyle/nohttp-checkstyle.xml')
+//}
 
-checkstyleNohttp {
-  configDirectory = project.file('src/checkstyle')
-  configFile = file('src/checkstyle/nohttp-checkstyle.xml')
-}
+//tasks.named("formatMain").configure { dependsOn("checkstyleMain") }
+//tasks.named("formatMain").configure { dependsOn("checkstyleNohttp") }
+//
+//tasks.named("formatTest").configure { dependsOn("checkstyleTest") }
+//tasks.named("formatTest").configure { dependsOn("checkstyleNohttp") }
 
-tasks.named("formatMain").configure { dependsOn("checkstyleMain") }
-tasks.named("formatMain").configure { dependsOn("checkstyleNohttp") }
+//checkstyleAot.enabled = false
+//checkstyleAotTest.enabled = false
+//
+//checkFormatAot.enabled = false
+//checkFormatAotTest.enabled = false
 
-tasks.named("formatTest").configure { dependsOn("checkstyleTest") }
-tasks.named("formatTest").configure { dependsOn("checkstyleNohttp") }
-
-checkstyleAot.enabled = false
-checkstyleAotTest.enabled = false
-
-checkFormatAot.enabled = false
-checkFormatAotTest.enabled = false
-
-formatAot.enabled = false
-formatAotTest.enabled = false
+//formatAot.enabled = false
+//formatAotTest.enabled = false

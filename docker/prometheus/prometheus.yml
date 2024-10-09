@@ -1,0 +1,13 @@
+global:
+  scrape_interval: 15s
+
+scrape_configs:
+  - job_name: 'spring-boot'
+    metrics_path: '/actuator/prometheus'
+    static_configs:
+      - targets: ['spring-petclinic:8080']
+  - job_name: varnish
+    # 'exporter' is our exporter container in `docker-compose.yml`
+    # metrics_path defaults to '/metrics', scheme to 'http'
+    static_configs:
+      - targets: [ "89.169.140.137:9131" ]

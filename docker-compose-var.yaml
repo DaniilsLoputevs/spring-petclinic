@@ -1,0 +1,40 @@
+services:
+  varnish:
+    image: varnish:7.5
+    restart: "no"
+    ports:
+      - "8000:80"
+    volumes:
+      - ./docker/varnish/default.vcl:/etc/varnish/default.vcl
+      - varnish_data:/var/lib/varnish
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    healthcheck:
+      test: wget --no-verbose --tries=1 --spider http://localhost:8080 || exit 1
+      interval: 10s
+      timeout: 5s
+      start_period: 10s
+      retries: 5
+  #    command: -n varnish
+  #    command: varnishd -F -f /etc/varnish/default.vcl -s malloc,256m
+
+  varnish-prometheus:
+    image: jlcox1970/prometheus-varnish-exporter:7.5.0-1
+    restart: "no"
+    ports:
+      - "9131:9131"
+    volumes:
+      - varnish_data:/var/lib/varnish
+    command: -n /var/lib/varnish/varnishd/ --verbose
+    depends_on:
+      - varnish
+
+volumes:
+  varnish_data:
+    driver: local
+    driver_opts:
+      type: tmpfs
+      device: tmpfs
+

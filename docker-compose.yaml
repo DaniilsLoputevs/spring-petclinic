@@ -1,0 +1,172 @@
+services:
+  postgres:
+    image: postgres:17.0
+    restart: "no"
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_USER: petclinic
+      POSTGRES_PASSWORD: petclinic
+      POSTGRES_DB: petclinic
+    healthcheck:
+      test: pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB
+      interval: 10s
+      timeout: 5s
+      start_period: 10s
+      retries: 5
+  pgadmin:
+    image: dpage/pgadmin4:8.12.0
+    restart: "no"
+    ports:
+      - "5050:80"
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+      - ./docker/pgadmin/servers.json:/pgadmin4/servers.json
+      - ./docker/pgadmin/pgpass:/pgadmin4/pgpass
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@admin.com
+      PGADMIN_DEFAULT_PASSWORD: root
+      PGADMIN_CONFIG_SERVER_MODE: "False"
+      PGADMIN_CONFIG_MASTER_PASSWORD_REQUIRED: "False"
+    healthcheck:
+      test: wget --no-verbose --tries=1 --spider http://localhost:80/misc/ping || exit -1
+      interval: 10s
+      timeout: 5s
+      start_period: 10s
+      retries: 5
+    entrypoint: /bin/sh -c "chmod 600 /pgadmin4/pgpass; /entrypoint.sh;"
+  envoy:
+    image: envoyproxy/envoy:dev-b67e3b4491c995d226f3da35972f707bac743fcf
+    ports:
+      - "9902:9902"
+      - "8000:8000"
+      - "8001:8001"
+      - "10000:10000"
+    volumes:
+      - ./docker/envoy/envoy.yaml:/etc/envoy/envoy.yaml
+    command: /usr/local/bin/envoy -c /etc/envoy/envoy.yaml -l off --component-log-level upstream:debug,connection:trace
+  nginx:
+    image: nginx:1.21.3
+    restart: "no"
+    ports:
+      - "8000:80"
+    volumes:
+      - ./docker/nginx/nginx.conf:/etc/nginx/nginx.conf
+    healthcheck:
+      test: wget --no-verbose --tries=1 --spider http://localhost:80 || exit 1
+      interval: 10s
+      timeout: 5s
+      start_period: 10s
+      retries: 5
+  varnish:
+    image: varnish:7.5
+    restart: "no"
+    ports:
+      - "8000:80"
+    volumes:
+      - ./docker/varnish/local.vcl:/etc/varnish/default.vcl
+      - varnish_data:/var/lib/varnish
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    healthcheck:
+      test: wget --no-verbose --tries=1 --spider http://localhost:8080 || exit 1
+      interval: 10s
+      timeout: 5s
+      start_period: 10s
+      retries: 5
+#    command: -n varnish
+#    command: varnishd -F -f /etc/varnish/default.vcl -s malloc,256m
+
+  varnish-prometheus:
+    image: jlcox1970/prometheus-varnish-exporter:7.5.0-1
+    restart: "no"
+    ports:
+      - "9131:9131"
+    volumes:
+      - varnish_data:/var/lib/varnish
+    command: -n /var/lib/varnish/varnishd/ --verbose
+    depends_on:
+      - varnish
+
+  spring-petclinic:
+    image: spring-petclinic:latest
+    build:
+      context: .
+      args:
+        DOCKER_BUILDKIT: 1
+    restart: "no"
+    ports:
+      - "8080:8080"
+    environment:
+      POSTGRES_URL: jdbc:postgresql://postgres/petclinic
+    healthcheck:
+      test: wget --no-verbose --tries=1 --spider http://localhost:8080/actuator/health || exit 1
+      interval: 30s
+      timeout: 5s
+      start_period: 30s
+      retries: 5
+  prometheus:
+    image: prom/prometheus:v2.54.1
+    restart: "no"
+    command:
+      - "--web.enable-lifecycle"
+      - "--config.file=/etc/prometheus/prometheus.yml"
+    ports:
+      - "9092:9090"
+    volumes:
+      - ./docker/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus_data:/prometheus
+    healthcheck:
+      test: wget --no-verbose --tries=1 --spider http://localhost:9090/-/healthy
+      interval: 10s
+      timeout: 5s
+      start_period: 10s
+      retries: 5
+  grafana:
+    image: grafana/grafana:11.2.2
+    restart: "no"
+    ports:
+      - "3000:3000"
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./docker/grafana/grafana.ini:/etc/grafana/grafana.ini
+      - ./docker/grafana/provisioning:/etc/grafana/provisioning
+    environment:
+      GF_AUTH_ANONYMOUS_ENABLED: "true"
+      GF_AUTH_DISABLE_LOGIN_FORM: "true"
+      GF_AUTH_ANONYMOUS_ORG_ROLE: "Admin"
+    healthcheck:
+      test: curl --fail -s http://localhost:3000/api/health || exit 1
+      interval: 10s
+      timeout: 5s
+      start_period: 10s
+      retries: 5
+  datascience-notebook:
+    image: quay.io/jupyter/datascience-notebook:latest
+    restart: "no"
+    ports:
+      - "8888:8888"
+    volumes:
+      - ./docker/datascience-notebook:/home/jovyan/work
+    environment:
+      JUPYTER_ENABLE_LAB: "yes"
+    healthcheck:
+      test: curl --fail http://localhost:8888 || exit 1
+      interval: 30s
+      timeout: 10s
+      retries: 3
+volumes:
+  postgres_data:
+  pgadmin_data:
+  prometheus_data:
+  grafana_data:
+  varnish_data:
+    driver: local
+    driver_opts:
+      type: tmpfs
+      device: tmpfs
+
