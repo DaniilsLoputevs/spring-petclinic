@@ -20,6 +20,8 @@ import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -46,21 +48,25 @@ class VetController {
 	}
 
 	@GetMapping("/vets.html")
-	public String showVetList(@RequestParam(defaultValue = "1") int page, Model model) {
+	public String showVetList(@RequestParam(defaultValue = "1") int page, Model model, Authentication authentication) {
 		// Here we are returning an object of type 'Vets' rather than a collection of Vet
 		// objects so it is simpler for Object-Xml mapping
 //		Vets vets = new Vets();
 		Page<Vet> paginated = findPaginated(page);
 //		vets.getVetList().addAll(paginated.toList());
-		return addPaginationModel(page, paginated, model);
+		return addPaginationModel(page, paginated, model, authentication);
 	}
 
-	private String addPaginationModel(int page, Page<Vet> paginated, Model model) {
+	private String addPaginationModel(int page, Page<Vet> paginated, Model model, Authentication authentication) {
 		List<Vet> listVets = paginated.getContent();
 		model.addAttribute("currentPage", page);
 		model.addAttribute("totalPages", paginated.getTotalPages());
 		model.addAttribute("totalItems", paginated.getTotalElements());
 		model.addAttribute("listVets", listVets);
+
+		if (authentication.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_CEO"))) {
+			return "vets/vetListCeo";
+		}
 		return "vets/vetList";
 	}
 

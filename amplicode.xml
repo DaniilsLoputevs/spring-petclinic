@@ -4,6 +4,20 @@
   <component name="AmplicodeJpaPluginProjectSettings">
     <option name="lastSelectedLanguage" value="Java" />
   </component>
+  <component name="AmplicodeLiquibaseChangesConfig">
+    <exclude-change idName="owners#address" tagName="modifyDataType" />
+    <exclude-change idName="owners#city" tagName="modifyDataType" />
+    <exclude-change idName="visits#description" tagName="modifyDataType" />
+    <exclude-change idName="owners#first_name" tagName="modifyDataType" />
+    <exclude-change idName="vets#first_name" tagName="modifyDataType" />
+    <exclude-change idName="owners#last_name" tagName="modifyDataType" />
+    <exclude-change idName="vets#last_name" tagName="modifyDataType" />
+    <exclude-change idName="pets#name" tagName="modifyDataType" />
+    <exclude-change idName="specialties#name" tagName="modifyDataType" />
+    <exclude-change idName="types#name" tagName="modifyDataType" />
+    <exclude-change idName="owners#telephone" tagName="modifyDataType" />
+    <exclude-change idName="vet_specialties#specialty_id, vet_id" tagName="addPrimaryKey" />
+  </component>
   <component name="AmplicodePersistenceUnitSettings">
     <persistence-units>
       <persistence-unit moduleName="spring-petclinic.main" name="Default">
