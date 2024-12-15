@@ -18,17 +18,15 @@ package org.springframework.samples.petclinic.owner;
 import java.time.LocalDate;
 import java.util.Collection;
 
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
+import org.springframework.samples.petclinic.owner.dto.PetInfoDto;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.util.StringUtils;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.WebDataBinder;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.InitBinder;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
 
 import jakarta.validation.Valid;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
@@ -46,8 +44,16 @@ class PetController {
 
 	private final OwnerRepository owners;
 
-	public PetController(OwnerRepository owners) {
+	private final PetRepository petRepository;
+
+	private final PetApiMapper petApiMapper;
+
+	public PetController(OwnerRepository owners,
+						 PetRepository petRepository,
+						 PetApiMapper petApiMapper) {
 		this.owners = owners;
+		this.petRepository = petRepository;
+		this.petApiMapper = petApiMapper;
 	}
 
 	@ModelAttribute("types")
@@ -162,5 +168,6 @@ class PetController {
 		redirectAttributes.addFlashAttribute("message", "Pet details has been edited");
 		return "redirect:/owners/{ownerId}";
 	}
+
 
 }

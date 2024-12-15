@@ -55,6 +55,8 @@ dependencies {
   implementation 'org.flywaydb:flyway-database-postgresql:10.12.0'
   implementation 'org.flywaydb:flyway-core'
   implementation 'org.sqids:sqids:0.1.0'
+    compileOnly 'org.mapstruct:mapstruct:1.6.0'
+    annotationProcessor 'org.mapstruct:mapstruct-processor:1.6.0'
 }
 
 tasks.named('test') {
