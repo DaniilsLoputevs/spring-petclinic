@@ -18,13 +18,4 @@
     <exclude-change idName="owners#telephone" tagName="modifyDataType" />
     <exclude-change idName="vet_specialties#specialty_id, vet_id" tagName="addPrimaryKey" />
   </component>
-  <component name="AmplicodePersistenceUnitSettings">
-    <persistence-units>
-      <persistence-unit moduleName="spring-petclinic.main" name="Default">
-        <packages>
-          <package value="org.springframework.samples.petclinic" />
-        </packages>
-      </persistence-unit>
-    </persistence-units>
-  </component>
 </project>
